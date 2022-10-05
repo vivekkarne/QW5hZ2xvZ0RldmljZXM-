@@ -4,20 +4,24 @@ from utils import MessageQueue, MonitorThread
 import unittest
 import time
 
+# Test class for MessageQueue Class
 class MessageQueueTest(unittest.TestCase):
     def setUp(self):
         self.mq = MessageQueue()
 
+    # Test sentinel handling
     def test_sentinel(self):
         self.mq.put_message(None)
         self.assertIsNone(self.mq.get_message())
     
+    # Test message handling
     def test_message(self):
         self.mq.put_message("Test","12345678")
         msg, pno = self.mq.get_message()
         self.assertEqual(msg, "Test")
         self.assertEqual(pno, "12345678")
 
+    # Test message and sentinel handling
     def test_msg_with_sentinel(self):
         self.mq.put_message("Test","12345678")
         self.mq.put_message(None)
@@ -26,7 +30,7 @@ class MessageQueueTest(unittest.TestCase):
         self.assertEqual(pno, "12345678")
         self.assertIsNone(self.mq.get_message())
 
-
+# Test class for MonitorThread Class
 class MonitorThreadTest(unittest.TestCase):
     def setUp(self):
         self.monitor = mock.Mock()
@@ -36,7 +40,7 @@ class MonitorThreadTest(unittest.TestCase):
         self.mt = MonitorThread(2, self.monitor, self.total_msgs, self.stats, self.mock_lock)
 
     # @unittest.skip("Time save")
-    # test that timer is calling monitor method by mocking monitor method
+    # Test timer execution, check function(monitor) is called once with correct paramss
     def test_timer(self):
         time.sleep(3)
         self.monitor.assert_called_once_with(self.mt, self.total_msgs, self.stats, self.mock_lock)
@@ -53,6 +57,7 @@ class ProducerSenderTest(unittest.TestCase):
         self.stats = [0,0,0]
         self.stats_lock = simulation.threading.Lock()
     
+    # Helper to fill message_q every time with a producer
     def __fill_q(self):
         rn_p = simulation.random.Random()
         prod = simulation.threading.Thread(target=simulation.producer, args=(self.mq, rn_p, self.num_msgs))
@@ -60,10 +65,12 @@ class ProducerSenderTest(unittest.TestCase):
         prod.join()
 
     # @unittest.skip("Time save")
+    # Test to check that producer is producing correct number of messages
     def test_producer(self):
         self.__fill_q()
         self.assertEqual(self.mq.qsize(), self.num_msgs + self.sentinel)
     
+    # Test to check if a single sender is sending all the messages
     def test_sender(self):
         self.__fill_q()
         rnd = simulation.np.random.default_rng()
@@ -74,6 +81,7 @@ class ProducerSenderTest(unittest.TestCase):
         self.assertEqual(self.num_msgs, self.stats[0]+self.stats[1])
         self.assertEqual(self.mq.qsize(), 1)
 
+    # Test with multiple senders
     def test_multiple_senders(self):
         self.__fill_q()
         senders_n = 7
@@ -85,6 +93,7 @@ class ProducerSenderTest(unittest.TestCase):
         self.assertEqual(self.num_msgs, self.stats[0]+self.stats[1])
         self.assertEqual(self.mq.qsize(), 1)
     
+    # Test to check if ThreadMonitor stops after simulation is done
     def test_monitor_stop(self):
         self.test_sender()
         MonitorThread.stop = mock.Mock()
@@ -94,4 +103,5 @@ class ProducerSenderTest(unittest.TestCase):
         MonitorThread.stop.assert_called_once()
 
 if __name__ == "__main__":
+    # Suppress print statements for test_monitor_stop
     unittest.main(buffer=True)
