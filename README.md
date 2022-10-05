@@ -7,9 +7,10 @@ The consumer simulates sending using wait times which are modeled as an exponent
 ## Run Steps (Python 3.6+)
 ### Simulation
 1) Create a virtual env using `python3 -m venv env`
-2) Install the requirements `pip3 install -r requirements.txt`
-3) Run the simulation `python3 simulation.py`
-4) Enter 'd' for default configurations when prompted
+2) Activate the source `source env/bin/activate`
+3) Install the requirements `pip3 install -r requirements.txt`
+4) Run the simulation `python3 simulation.py`
+5) Enter 'd' for default configurations when prompted
 
 ### Unit Tests
 1) Run steps 1 & 2 from Simulation
